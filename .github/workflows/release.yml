@@ -112,23 +112,12 @@ jobs:
           set -euo pipefail
 
           cat > notes.md <<'EOF'
-          Mirror of [rustup __TAG__](https://github.com/rust-lang/rustup/tree/__TAG__),
-          repackaged so it can be installed with [`ghr`](https://cataggar.github.io/ghr/):
+          Mirror of [rustup __TAG__](https://github.com/rust-lang/rustup/tree/__TAG__), repackaged so it can be installed with [`ghr`](https://cataggar.github.io/ghr/):
 
           ```sh
           ghr install cataggar/rustup-init@__TAG__
-          rustup-init -y
+          rustup-init
           ```
-
-          These are the **official** `rustup-init` binaries downloaded from
-          `https://static.rust-lang.org/rustup/archive/__TAG__/` and verified against their
-          upstream SHA-256 sidecars — not rebuilt here. Only archives are published;
-          GitHub provides their SHA-256 digests. Same platform set as
-          [`cataggar/wamr`](https://github.com/cataggar/wamr).
-
-          `ghr` (v0.5.0-dev.5+) auto-detects OS, architecture, and glibc-vs-musl, so the
-          command above works on every supported host, including Alpine/musl and `riscv64`.
-          See the [README](https://github.com/cataggar/rustup-init/blob/ghr/README.md) for more.
           EOF
           sed -i "s/__TAG__/$TAG/g" notes.md
 
