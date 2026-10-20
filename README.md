@@ -4,7 +4,8 @@ Mirror of official [rustup](https://rust-lang.github.io/rustup/installation/othe
 
 ```sh
 ghr install cataggar/rustup-init
-rustup-init -y
+rustup-init
+ghr uninstall cataggar/rustup-init
 ```
 
 Binaries are downloaded from
