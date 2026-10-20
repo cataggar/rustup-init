@@ -117,13 +117,14 @@ jobs:
           ```sh
           ghr install cataggar/rustup-init@__TAG__
           rustup-init
+          ghr uninstall cataggar/rustup-init
           ```
           EOF
           sed -i "s/__TAG__/$TAG/g" notes.md
 
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --title "rustup $TAG" --notes-file notes.md
+            gh release edit "$TAG" --title "rustup-init $TAG" --notes-file notes.md
             gh release upload "$TAG" dist/*.tar.gz dist/*.zip --clobber
           else
-            gh release create "$TAG" dist/*.tar.gz dist/*.zip --title "rustup $TAG" --notes-file notes.md
+            gh release create "$TAG" dist/*.tar.gz dist/*.zip --title "rustup-init $TAG" --notes-file notes.md
           fi
