@@ -1,6 +1,6 @@
 # Rustup
 
-Mirror of official [rustup](https://github.com/rust-lang/rustup/tags) binaries, repackaged so they can be installed with [`ghr`](https://cataggar.github.io/ghr/):
+Mirror of official [rustup](https://rust-lang.github.io/rustup/installation/other.html) binaries, repackaged so they can be installed with [`ghr`](https://cataggar.github.io/ghr/):
 
 ```sh
 ghr install cataggar/rustup-init
