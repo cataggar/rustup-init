@@ -1,7 +1,7 @@
 name: Release
 
 # Mirror an official rustup release to this fork's GitHub Releases so it can be
-# installed with `ghr install cataggar/rustup`. Binaries are the official
+# installed with `ghr install cataggar/rustup-init`. Binaries are the official
 # `rustup-init` from static.rust-lang.org, repackaged (not rebuilt) for the same
 # platform set as cataggar/wamr.
 
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Upstream rustup version to mirror, e.g. 1.29.0 (see https://github.com/rust-lang/rustup/releases)'
+        description: 'Upstream rustup version to mirror, e.g. 1.29.0 (see https://github.com/rust-lang/rustup/tags)'
         required: true
         type: string
 
@@ -45,7 +45,7 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/rust-lang/rustup/git/refs/tags/$TAG")
           if [ "$code" != "200" ]; then
-            echo "::error::rust-lang/rustup has no tag '$TAG' (HTTP $code) — see https://github.com/rust-lang/rustup/releases/tag/$TAG"
+            echo "::error::rust-lang/rustup has no tag '$TAG' (HTTP $code) — see https://github.com/rust-lang/rustup/tags"
             exit 1
           fi
 
@@ -97,11 +97,9 @@ jobs:
             case "$triple" in
               *windows*)
                 ( cd "$work" && zip -q "$GITHUB_WORKSPACE/dist/$pkg.zip" "$bin" )
-                ( cd dist && sha256sum "$pkg.zip" > "$pkg.zip.sha256" )
                 ;;
               *)
                 tar -C "$work" -czf "dist/$pkg.tar.gz" "$bin"
-                ( cd dist && sha256sum "$pkg.tar.gz" > "$pkg.tar.gz.sha256" )
                 ;;
             esac
           done
@@ -114,28 +112,29 @@ jobs:
           set -euo pipefail
 
           cat > notes.md <<'EOF'
-          Mirror of [rustup __TAG__](https://github.com/rust-lang/rustup/releases/tag/__TAG__),
-          repackaged so it can be installed with [`ghr`](https://github.com/cataggar/ghr):
+          Mirror of [rustup __TAG__](https://github.com/rust-lang/rustup/tree/__TAG__),
+          repackaged so it can be installed with [`ghr`](https://cataggar.github.io/ghr/):
 
           ```sh
-          ghr install cataggar/rustup@__TAG__
+          ghr install cataggar/rustup-init@__TAG__
           rustup-init -y
           ```
 
           These are the **official** `rustup-init` binaries downloaded from
           `https://static.rust-lang.org/rustup/archive/__TAG__/` and verified against their
-          upstream SHA-256 sidecars — not rebuilt here. Same platform set as
+          upstream SHA-256 sidecars — not rebuilt here. Only archives are published;
+          GitHub provides their SHA-256 digests. Same platform set as
           [`cataggar/wamr`](https://github.com/cataggar/wamr).
 
           `ghr` (v0.5.0-dev.5+) auto-detects OS, architecture, and glibc-vs-musl, so the
           command above works on every supported host, including Alpine/musl and `riscv64`.
-          See the [README](https://github.com/cataggar/rustup/blob/ghr/README.md) for more.
+          See the [README](https://github.com/cataggar/rustup-init/blob/ghr/README.md) for more.
           EOF
           sed -i "s/__TAG__/$TAG/g" notes.md
 
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release edit "$TAG" --title "rustup $TAG" --notes-file notes.md
-            gh release upload "$TAG" dist/* --clobber
+            gh release upload "$TAG" dist/*.tar.gz dist/*.zip --clobber
           else
-            gh release create "$TAG" dist/* --title "rustup $TAG" --notes-file notes.md
+            gh release create "$TAG" dist/*.tar.gz dist/*.zip --title "rustup $TAG" --notes-file notes.md
           fi
